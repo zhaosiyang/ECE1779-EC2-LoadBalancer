@@ -1,0 +1,18 @@
+<h1>Dashboard</h1>
+
+<button (click)="logout()">Log out</button>
+
+<label>Upload a image</label>
+
+<form (submit)="upload()">
+  <input type="file" (change)="selectedFile = $event.target.files[0]">
+  <input type="submit">
+</form>
+
+
+<div *ngFor="let image of images">
+  <a href="/image/{{image.id}}">
+    <img src="{{image.key4}}" alt="original image">
+  </a>
+</div>
+

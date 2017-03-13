@@ -1,0 +1,8 @@
+<h1>Log in</h1>
+<form (submit)="login()" [formGroup]="formGroup">
+  <label>username</label>
+  <input type="text" [formControl]="usernameFormControl">
+  <label>password</label>
+  <input type="password" [formControl]="passwordFormControl">
+  <input type="submit">
+</form>
