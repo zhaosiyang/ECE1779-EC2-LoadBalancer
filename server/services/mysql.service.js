@@ -5,7 +5,7 @@ import * as bcrypt from 'bcrypt';
 export class MysqlService {
 
   static config() {
-    this.sql = new Sequelize(`mysql://${mysqlCredential.username}:${mysqlCredential.password}@localhost/ece1779a1`);
+    this.sql = new Sequelize(`mysql://${mysqlCredential.username}:${mysqlCredential.password}@${mysqlCredential.url}/ece1779a1`);
     this._configModels();
   }
 
