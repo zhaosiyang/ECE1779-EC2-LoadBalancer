@@ -10,7 +10,7 @@ gulp.task('start:server:dev', shell.task([
   'npm run dev'
 ]));
 
-gulp.task('build:client', shell.taks([
+gulp.task('build:client', shell.task([
   'ng build -op ../server/dist_client/'
 ], {cwd: '../client'}));
 
