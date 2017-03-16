@@ -5,7 +5,7 @@ import compose from 'composable-middleware';
 import {jwtSecret} from '../config';
 import {MysqlService} from './mysql.service';
 import {Responder} from './responder';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import {ErrorHandler} from './errorHandler';
 
 const validateJwt = expressJwt({
