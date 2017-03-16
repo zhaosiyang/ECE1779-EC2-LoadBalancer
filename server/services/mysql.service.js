@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 import {mysqlCredential} from '../config';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 export class MysqlService {
 

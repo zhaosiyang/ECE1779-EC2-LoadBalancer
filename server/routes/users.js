@@ -5,7 +5,7 @@ import {ErrorHandler} from '../services/errorHandler';
 import {AuthService} from '../services/auth.service';
 
 const router = express.Router();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
