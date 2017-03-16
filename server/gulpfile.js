@@ -12,7 +12,7 @@ gulp.task('start:server:dev', shell.task([
 ]));
 
 gulp.task('build:client:prod', shell.task([
-  'ng build -prod -op ' + path.join(__dirname, 'dist_client')
+  'pwd && ng build -prod -op ' + path.join(__dirname, 'dist_client')
 ], {cwd: path.join(__dirname, '..', 'client')}));
 
 gulp.task('start:server:prod', shell.task([
