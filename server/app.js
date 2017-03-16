@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
+import fallback from 'express-history-api-fallback';
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -14,10 +15,6 @@ var images = require('./routes/images');
 import {MysqlService} from './services/mysql.service';
 
 var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 
 app.use(cors({
   "origin": "http://localhost:4200",
@@ -32,12 +29,15 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'dist_client')));
 
-app.use('/', index);
+// app.use('/', index);
 app.use('/api/users', users);
 app.use('/api/aws', aws);
 app.use('/api/images', images);
+
+const root = path.join(__dirname, 'dist_client');
+app.use(express.static(root));
+app.use(fallback('index.html', { root }));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
