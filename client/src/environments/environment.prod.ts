@@ -3,5 +3,5 @@ export const environment = {
   env: 'production',
 
   // TODO change to load balancer url
-  backendUrl: 'localhost:3000'
+  backendUrl: '/'
 };

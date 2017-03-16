@@ -5,11 +5,12 @@ import {Observable} from 'rxjs';
 import 'rxjs/add/operator/toPromise';
 import {TokenService} from './tokenService';
 import {Router} from '@angular/router';
+import {environment} from '../../environments/environment';
 
 @Injectable()
 export class ApiService {
 
-  static API_BASE = 'http://localhost:3000/api';
+  static API_BASE = `${environment.backendUrl}api`;
 
   constructor(
     private http: Http,
