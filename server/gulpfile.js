@@ -25,7 +25,6 @@ gulp.task('dev', function (cb) {
 
 gulp.task('prod', function (cb) {
   runSequence([
-    'build:client:prod',
     'start:server:prod'
   ], cb);
 });
