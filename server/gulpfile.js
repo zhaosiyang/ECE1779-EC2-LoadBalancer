@@ -10,8 +10,8 @@ gulp.task('start:server:dev', shell.task([
   'npm run dev'
 ]));
 
-gulp.task('start:client:prod', shell.task([
-  'npm run start'
+gulp.task('build:client', shell.taks([
+  'ng build -op ../server/dist_client/'
 ], {cwd: '../client'}));
 
 gulp.task('start:server:prod', shell.task([
@@ -23,5 +23,8 @@ gulp.task('dev', function (cb) {
 });
 
 gulp.task('prod', function (cb) {
-  runSequence(['start:client:prod', 'start:server:prod'], cb);
+  runSequence([
+    'build:client',
+    'start:server:prod'
+  ], cb);
 });
