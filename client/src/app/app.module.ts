@@ -14,7 +14,6 @@ import {HomeComponent} from './components/home/home.component';
 import {appRoutes} from './app.routing';
 import {ApiService} from './services/apiService';
 import {TokenService} from './services/tokenService';
-import {FileUploadModule} from 'ng2-file-upload';
 
 @NgModule({
   declarations: [
@@ -31,8 +30,7 @@ import {FileUploadModule} from 'ng2-file-upload';
     FormsModule,
     HttpModule,
     ReactiveFormsModule,
-    RouterModule.forRoot(appRoutes),
-    FileUploadModule
+    RouterModule.forRoot(appRoutes)
   ],
   providers: [ApiService, TokenService],
   bootstrap: [AppComponent]
