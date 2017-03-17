@@ -9,7 +9,12 @@ export const mysqlCredential = {
 
 export const jwtSecret = 'ahsiulfdu9278oyreub';
 
-export const aws = {
-  imageId: 'ami-b04bc6d0',
-  instanceType: 't2.small'
+export const awsInstanceConfig = {
+  ImageId: 'ami-e263ea82',
+  InstanceType: 't2.small',
+  MinCount: 1,
+  MaxCount: 1,
+  UserData: new Buffer(`#cloud-config runcmd: - /bin/bash /home/ubuntu/start`).toString('base64'),
+  SecurityGroupIds: ['sg-c6ac8bbe'],
+  KeyName: 'ece1779'
 };

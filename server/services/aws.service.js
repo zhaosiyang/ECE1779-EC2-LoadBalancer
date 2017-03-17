@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
 import {Responder} from './responder';
 import {ErrorHandler} from './errorHandler';
-import {aws} from '../config';
+import {awsInstanceConfig} from '../config';
 import {Utils} from './utils';
 import * as path from 'path';
 
@@ -39,11 +39,12 @@ export class AwsService {
   static createEc2InstanceMiddleware() {
     return (req, res, next) => {
       // TODO to parameterize the following settings
-      const ImageId = req.body.ImageId || aws.imageId;
-      const InstanceType = req.body.InstanceType || aws.instanceType;
-      const MinCount = req.body.MinCount || 1;
-      const MaxCount = req.body.MaxCount || 1;
-      this.singleton.ec2.runInstances({ImageId, InstanceType, MinCount, MaxCount}).promise()
+      // const ImageId = req.body.ImageId || aws.imageId;
+      // const InstanceType = req.body.InstanceType || aws.instanceType;
+      // const MinCount = req.body.MinCount || 1;
+      // const MaxCount = req.body.MaxCount || 1;
+      // const UserData = aws.userData;
+      this.singleton.ec2.runInstances(awsInstanceConfig).promise()
         .then(Responder.respondWithResult(res))
         .catch(ErrorHandler.handleError(res));
     }
