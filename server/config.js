@@ -18,5 +18,6 @@ export const awsInstanceConfig = {
   runcmd: 
   - /bin/bash /home/ubuntu/start`).toString('base64'),
   SecurityGroupIds: ['sg-c6ac8bbe'],
-  KeyName: 'ece1779'
+  KeyName: 'ece1779',
+  Monitoring: {Enabled: true}
 };
