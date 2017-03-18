@@ -21,3 +21,5 @@ export const awsInstanceConfig = {
   KeyName: 'ece1779',
   Monitoring: {Enabled: true}
 };
+
+export const loadBalancerName = 'ece1779a1-load-balancer';

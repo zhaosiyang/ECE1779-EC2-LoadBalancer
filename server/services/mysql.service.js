@@ -61,8 +61,16 @@ export class MysqlService {
         type: Sequelize.STRING
       }
     });
+    this._models.AdminConfig = this.sql.define('ADMIN_CONFIGS', {
+      autoScale: {type: Sequelize.BOOLEAN},
+      cpuExpandingThreshold: {type: Sequelize.INTEGER},
+      cpuShrinkingThreshold: {type: Sequelize.INTEGER},
+      expandingRatio: {type: Sequelize.INTEGER},
+      shrinkingRatio: {type: Sequelize.INTEGER}
+    });
     const User = MysqlService.models.User;
     const Image = MysqlService.models.Image;
+    const AdminConfig = MysqlService.models.AdminConfig;
     User.sync().then(function () {
         console.log('USERS table created');
         // return User.create({
@@ -70,10 +78,21 @@ export class MysqlService {
         //     password: 'admin'
         // });
     }).then(function () {
-        return Image.sync({force: true}).then(function () {
+        return Image.sync().then(function () {
             console.log('IMAGES table created');
         });
-    });
+    }).then(function () {
+        return AdminConfig.sync().then(function () {
+          console.log('AdminConfig table created');
+          // return AdminConfig.create({
+          //   autoScale: false,
+          //   cpuExpandingThreshold: 80,
+          //   cpuShrinkingThreshold: 10,
+          //   expandingRatio: 2,
+          //   shrinkingRatio: 2
+          // });
+        })
+    })
   }
 
   static get models() {

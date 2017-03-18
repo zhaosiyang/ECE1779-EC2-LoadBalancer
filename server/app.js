@@ -11,10 +11,13 @@ var index = require('./routes/index');
 var users = require('./routes/users');
 var aws = require('./routes/aws');
 var images = require('./routes/images');
+var adminConfig = require('./routes/adminConfig');
 
 import {MysqlService} from './services/mysql.service';
 
 var app = express();
+
+MysqlService.config();
 
 app.use(cors());
 
@@ -29,6 +32,7 @@ app.use(cookieParser());
 app.use('/api/users', users);
 app.use('/api/aws', aws);
 app.use('/api/images', images);
+app.use('/api/adminConfig', adminConfig);
 
 app.use('/api/*', function (req, res) {
   res.send('endpoint not found');
@@ -56,7 +60,5 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.send(err);
 });
-
-MysqlService.config();
 
 module.exports = app;

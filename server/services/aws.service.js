@@ -2,7 +2,7 @@ import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
 import {Responder} from './responder';
 import {ErrorHandler} from './errorHandler';
-import {awsInstanceConfig} from '../config';
+import {awsInstanceConfig, loadBalancerName} from '../config';
 import {Utils} from './utils';
 import * as path from 'path';
 
@@ -16,6 +16,7 @@ export class AwsService {
     this.ec2 = new AWS.EC2();
     this.s3 = new AWS.S3();
     this.cloudWatch = new AWS.CloudWatch();
+    this.elb = new AWS.ELB();
   }
 
   static get singleton() {
@@ -36,6 +37,26 @@ export class AwsService {
     }
   }
 
+  // putToLoadBalancer = (data) => {
+  //   console.log('in putToLoadBalancer, data.Instances:', data.Instances);
+  //   return this.singleton.elb.registerInstancesWithLoadBalancer({
+  //     Instances: data.Instances,
+  //     LoadBalancerName: loadBalancerName
+  //   }).promise();
+  // };
+
+  static putToLoadBalancer() {
+    return data => {
+      console.log(data);
+      const params = {
+        Instances: data.Instances.map(i => {return {InstanceId: i.InstanceId}}),
+        LoadBalancerName: loadBalancerName
+      };
+      console.log(params);
+      return this.singleton.elb.registerInstancesWithLoadBalancer(params).promise();
+    }
+  }
+
   static createEc2InstanceMiddleware() {
     return (req, res, next) => {
       let awsInstanceConfigCopy;
@@ -45,8 +66,8 @@ export class AwsService {
       else {
         awsInstanceConfigCopy = awsInstanceConfig;
       }
-      console.log('awsInstanceConfigCopy', awsInstanceConfigCopy);
       this.singleton.ec2.runInstances(awsInstanceConfigCopy).promise()
+        .then(this.putToLoadBalancer())
         .then(Responder.respondWithResult(res))
         .catch(ErrorHandler.handleError(res));
     }
