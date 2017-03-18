@@ -14,7 +14,9 @@ export const awsInstanceConfig = {
   InstanceType: 't2.small',
   MinCount: 1,
   MaxCount: 1,
-  UserData: new Buffer(`#cloud-config runcmd: - /bin/bash /home/ubuntu/start`).toString('base64'),
+  UserData: new Buffer(`#cloud-config 
+  runcmd: 
+  - /bin/bash /home/ubuntu/start`).toString('base64'),
   SecurityGroupIds: ['sg-c6ac8bbe'],
   KeyName: 'ece1779'
 };
