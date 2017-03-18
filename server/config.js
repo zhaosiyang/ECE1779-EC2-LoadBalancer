@@ -10,7 +10,7 @@ export const mysqlCredential = {
 export const jwtSecret = 'ahsiulfdu9278oyreub';
 
 export const awsInstanceConfig = {
-  ImageId: 'ami-e263ea82',
+  ImageId: 'ami-89b038e9',
   InstanceType: 't2.small',
   MinCount: 1,
   MaxCount: 1,

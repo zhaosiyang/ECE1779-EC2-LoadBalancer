@@ -5,9 +5,9 @@ const gm = require('gm').subClass({imageMagick: true});
 
 export class ImageService {
 
-  static _identifyAsPromise(path) {
+  static _getSizeAsPromise(path) {
     return new Promise((resolve, reject) => {
-      gm(path).identify((err, data) => {
+      gm(path).size((err, data) => {
         if (err) {
           reject(err);
         }
@@ -19,7 +19,6 @@ export class ImageService {
   }
 
   static _resizeAsPromise(filePath, originalname, width, suffix, data, id) {
-
     const promise = new Promise((resolve, reject) => {
       const dstPath = Utils.transformPath(filePath, originalname, suffix, id);
       gm(filePath).resize(width).write(dstPath, err => {
@@ -46,7 +45,7 @@ export class ImageService {
       if (!req.file || !req.file.path) {
         return res.status(400).end();
       }
-      this._identifyAsPromise(req.file.path)
+      this._getSizeAsPromise(req.file.path)
         .then(data => this._resizeAsPromise(req.file.path, req.file.originalname, parseInt(RATIO1 * data.width), 'micro', data, id))
         .then(data => this._resizeAsPromise(req.file.path, req.file.originalname, parseInt(RATIO2 * data.width), 'small', data, id))
         .then(data => this._resizeAsPromise(req.file.path, req.file.originalname, parseInt(RATIO3 * data.width), 'big', data, id))
