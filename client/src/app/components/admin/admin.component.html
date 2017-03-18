@@ -1,1 +1,22 @@
 <h1>Admin</h1>
+
+<form (submit)="setAdminConfig()" [formGroup]="formGroup">
+  <label>autoScale</label>
+  <p *ngIf="autoScaleStatus === true">AutoScare is On</p>
+  <p *ngIf="autoScaleStatus === false">AutoScare is Off</p>
+  <br>
+  <input type="radio" [formControl]="autoScaleFormControl" value="true"> On <br>
+  <input type="radio" [formControl]="autoScaleFormControl" value="false"> Off <br>
+  <br>
+  <label>cpuExpandingThreshold</label>
+  <input type="text" [formControl]="cpuExpandingThresholdFormControl"><br>
+  <label>cpuShrinkingThreshold</label>
+  <input type="text" [formControl]="cpuShrinkingThresholdFormControl"><br>
+  <label>expandingRatio</label>
+  <input type="text" [formControl]="expandingRatioFormControl"><br>
+  <label>shrinkingRatio</label>
+  <input type="text" [formControl]="shrinkingRatioFormControl"><br>
+  <input type="submit">
+</form>
+
+<button (click)="refresh()">reset</button>

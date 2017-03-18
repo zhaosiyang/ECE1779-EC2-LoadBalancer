@@ -61,4 +61,12 @@ export class ApiService {
       .catch(this.preCheckStatus401());
   }
 
+  getAdminConfig(): Promise<Response> {
+    return this.http.get(ApiService.API_BASE + '/adminConfig').toPromise();
+  }
+
+  setAdminConfig(body): Promise<Response> {
+    return this.http.put(ApiService.API_BASE + '/adminConfig', body).toPromise();
+  }
+
 }
