@@ -16,12 +16,7 @@ import {MysqlService} from './services/mysql.service';
 
 var app = express();
 
-app.use(cors({
-  "origin": "http://localhost:4200",
-  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-  "preflightContinue": false,
-  "credentials": true
-}));
+app.use(cors());
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -34,6 +29,11 @@ app.use(cookieParser());
 app.use('/api/users', users);
 app.use('/api/aws', aws);
 app.use('/api/images', images);
+
+app.use('/api/*', function (req, res) {
+  res.send('endpoint not found');
+});
+
 
 const root = path.join(__dirname, 'dist_client');
 app.use(express.static(root));
@@ -54,7 +54,7 @@ app.use(function(err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  res.send(err);
 });
 
 MysqlService.config();

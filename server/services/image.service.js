@@ -1,13 +1,13 @@
-import * as IM from 'imagemagick';
 import {Utils} from './utils';
 import {ErrorHandler} from './errorHandler';
 import * as fs from 'fs';
+const gm = require('gm').subClass({imageMagick: true});
 
 export class ImageService {
 
   static _identifyAsPromise(path) {
     return new Promise((resolve, reject) => {
-      IM.identify(path, (err, data) => {
+      gm(path).identify((err, data) => {
         if (err) {
           reject(err);
         }
@@ -22,7 +22,7 @@ export class ImageService {
 
     const promise = new Promise((resolve, reject) => {
       const dstPath = Utils.transformPath(filePath, originalname, suffix, id);
-      IM.resize({srcPath: filePath, dstPath, width}, err => {
+      gm(filePath).resize(width).write(dstPath, err => {
         if (err) {
           reject(err);
         }
@@ -31,7 +31,7 @@ export class ImageService {
           data._paths.push(dstPath);
           resolve(data);
         }
-      })
+      });
     });
     return promise;
   }
@@ -51,7 +51,9 @@ export class ImageService {
         .then(data => this._resizeAsPromise(req.file.path, req.file.originalname, parseInt(RATIO2 * data.width), 'small', data, id))
         .then(data => this._resizeAsPromise(req.file.path, req.file.originalname, parseInt(RATIO3 * data.width), 'big', data, id))
         .then(data => this._resizeAsPromise(req.file.path, req.file.originalname, parseInt(data.width), 'original', data, id))
-        .then(data => req._newPaths = data._paths)
+        .then(data => {
+          req._newPaths = data._paths;
+        })
         .then(Utils.goNext(next))
         .catch(ErrorHandler.handleError(res))
     }

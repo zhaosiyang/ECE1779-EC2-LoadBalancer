@@ -38,13 +38,15 @@ export class AwsService {
 
   static createEc2InstanceMiddleware() {
     return (req, res, next) => {
-      // TODO to parameterize the following settings
-      // const ImageId = req.body.ImageId || aws.imageId;
-      // const InstanceType = req.body.InstanceType || aws.instanceType;
-      // const MinCount = req.body.MinCount || 1;
-      // const MaxCount = req.body.MaxCount || 1;
-      // const UserData = aws.userData;
-      this.singleton.ec2.runInstances(awsInstanceConfig).promise()
+      let awsInstanceConfigCopy;
+      if (req.body.number) {
+        awsInstanceConfigCopy = Object.assign({}, awsInstanceConfig, {MaxCount: req.body.number, MinCount: req.body.number});
+      }
+      else {
+        awsInstanceConfigCopy = awsInstanceConfig;
+      }
+      console.log('awsInstanceConfigCopy', awsInstanceConfigCopy);
+      this.singleton.ec2.runInstances(awsInstanceConfigCopy).promise()
         .then(Responder.respondWithResult(res))
         .catch(ErrorHandler.handleError(res));
     }
