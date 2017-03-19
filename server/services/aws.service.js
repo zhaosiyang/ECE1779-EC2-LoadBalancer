@@ -52,20 +52,16 @@ export class AwsService {
         Instances: data.Instances.map(i => {return {InstanceId: i.InstanceId}}),
         LoadBalancerName: loadBalancerName
       };
-      console.log(params);
       return this.singleton.elb.registerInstancesWithLoadBalancer(params).promise();
     }
   }
 
-  static createEc2InstanceMiddleware() {
+  static createEc2InstanceMiddleware(number) {
     return (req, res, next) => {
-      let awsInstanceConfigCopy;
-      if (req.body.number) {
-        awsInstanceConfigCopy = Object.assign({}, awsInstanceConfig, {MaxCount: req.body.number, MinCount: req.body.number});
-      }
-      else {
-        awsInstanceConfigCopy = awsInstanceConfig;
-      }
+
+      number = number || req.body.number || 1;
+      let awsInstanceConfigCopy = Object.assign({}, awsInstanceConfig, {MaxCount: number, MinCount: number});
+
       this.singleton.ec2.runInstances(awsInstanceConfigCopy).promise()
         .then(this.putToLoadBalancer())
         .then(Responder.respondWithResult(res))
@@ -91,14 +87,27 @@ export class AwsService {
     }
   }
 
-  static terminateEc2InstanceMiddleware() {
+  static terminateEc2InstancesMiddleware() {
     return (req, res, next) => {
-      const instanceId = req.params.instanceId;
-      this.singleton.ec2.terminateInstances({InstanceIds: [instanceId]}).promise()
+      const instanceIds = req.body.instanceIds;
+      this.singleton.ec2.terminateInstances({InstanceIds: instanceIds}).promise()
         .then(Responder.respondWithResult(res))
         .catch(ErrorHandler.handleError(res));
     }
   }
+
+  // no need to call this anymore since when terminating an instance, it's auto deregistered from the ELB
+  // static removeInstancesFromLoadBalancerMiddleware() {
+  //   return (req, res, next) => {
+  //     const params = {
+  //       LoadBalancerName: loadBalancerName,
+  //       Instances: req.body.instanceIds.map(i => {return {InstanceId: i}})
+  //     };
+  //     return this.singleton.elb.deregisterInstancesFromLoadBalancer(params).promise()
+  //       .then(Responder.respondWithBlankBody(res))
+  //       .catch(ErrorHandler.handleError(res));
+  //   }
+  // }
 
   static rebootEc2InstanceMiddleware() {
     return (req, res, next) => {
@@ -137,15 +146,100 @@ export class AwsService {
     }
   }
 
-  static createNewInstances() {
-
+  static bindLoadBalancerMiddleware() {
+    return (req, res, next) => {
+      return this.singleton.elb.describeLoadBalancers().promise()
+        .then(response => {
+          const loadBalancers = response['LoadBalancerDescriptions'].filter(l => l.LoadBalancerName = loadBalancerName);
+          if (loadBalancers.length === 0) {
+            throw Error('cannot find load balancer');
+          }
+          else {
+            req.loadBalancer = loadBalancers[0];
+          }
+        })
+        .then(Utils.goNext(next))
+        .catch(ErrorHandler.handleError(res));
+    }
   }
 
-  // static createOrUpdateCloudWatchCpuUnitlizationAlarmMiddleware() {
-  //   return (req, res, next) => {
-  //
-  //   }
-  // }
+  static getCpuUtilizationMiddleware() {
+    return (req, res, next) => {
+      const EndTime = new Date;
+      const StartTime = new Date(EndTime);
+      StartTime.setMinutes(StartTime.getMinutes() - 5);
+      const params = {
+        StartTime,
+        EndTime,
+        Namespace: 'AWS/EC2',
+        MetricName: 'CPUUtilization',
+        Period: 300,
+        Dimensions: [{
+          Name: 'InstanceId',
+          Value: req.params.instanceId
+        }],
+        Statistics: ['Average']
+      };
+      return this.singleton.cloudWatch.getMetricStatistics(params).promise()
+        .then(Responder.respondWithResult(res))
+        .catch(ErrorHandler.handleError(res))
+    }
+  }
+
+  static bindInstanceIdsMiddleware() {
+    return (req, res, next) => {
+      if (!req.loadBalancer) {
+        throw Error('loadBalancer is not bind');
+      }
+      else {
+        req.instanceIds = req.loadBalancer.Instances.map(i => i.InstanceId);
+        next();
+      }
+    }
+  }
+
+  static doChangeInstanceNumberMiddleware() {
+    return (req, res, next) => {
+      const instanceIds = req.instanceIds;
+      const numberOfCurrentInstances = instanceIds.length;
+      const targetNumber = parseInt(req.body.number);
+      const numberDiff = targetNumber - numberOfCurrentInstances;
+      if (numberDiff > 0) {
+        let awsInstanceConfigCopy = Object.assign({}, awsInstanceConfig, {MaxCount: numberDiff, MinCount: numberDiff});
+        this.singleton.ec2.runInstances(awsInstanceConfigCopy).promise()
+          .then(this.putToLoadBalancer())
+          .then(Responder.respondWithResult(res))
+          .catch(ErrorHandler.handleError(res));
+      }
+      else if (numberDiff < 0) {
+        const instanceIdsToRemove = instanceIds.slice(targetNumber);
+        this.singleton.ec2.terminateInstances({InstanceIds: instanceIdsToRemove}).promise()
+          .then(Responder.respondWithResult(res))
+          .catch(ErrorHandler.handleError(res));
+      }
+      else {
+        Responder.respondWithBlankBody(res)();
+      }
+    }
+  }
+
+  static clearBucketMiddleware() {
+    return (req, res, next) => {
+      this.singleton.s3.listObjects({Bucket: AwsService.BUCKET}).promise()
+        .then(response => response.Contents.map(object => {return {Key: object.Key}}))
+        .then(Objects => {
+          if (Objects.length === 0) {
+            return null;
+          }
+          return this.singleton.s3.deleteObjects({
+            Bucket: AwsService.BUCKET,
+            Delete: {Objects}
+          }).promise();
+        })
+        .then(Utils.goNext(next))
+        .catch(ErrorHandler.handleError(res));
+    };
+  }
 
 }
 

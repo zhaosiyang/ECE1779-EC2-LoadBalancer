@@ -1,5 +1,6 @@
 var express = require('express');
 import {MysqlService} from '../services/mysql.service';
+import {AwsService} from '../services/aws.service';
 import {Responder} from '../services/responder';
 import {ErrorHandler} from '../services/errorHandler';
 const router = express.Router();
@@ -34,5 +35,11 @@ router.put('/', function (req, res, next) {
     .then(Responder.respondWithResult(res))
     .catch(ErrorHandler.handleError(res));
 });
+
+router.delete('/all',
+  AwsService.clearBucketMiddleware(),
+  MysqlService.clearImageTableMiddleware(),
+  MysqlService.clearUserTableMiddleware()
+);
 
 module.exports = router;

@@ -1,5 +1,8 @@
 const Sequelize = require('sequelize');
 import {mysqlCredential} from '../config';
+import {Responder} from './responder';
+import {ErrorHandler} from './errorHandler';
+import {Utils} from './utils';
 import * as bcrypt from 'bcryptjs';
 
 export class MysqlService {
@@ -93,6 +96,22 @@ export class MysqlService {
           // });
         })
     })
+  }
+
+  static clearImageTableMiddleware() {
+    return (req, res, next) => {
+      this.models.Image.destroy({where: {}})
+        .then(Utils.goNext(next))
+        .catch(ErrorHandler.handleError(res))
+    }
+  }
+
+  static clearUserTableMiddleware() {
+    return (req, res, next) => {
+      this.models.User.destroy({where: {username: {$ne: 'admin'}}})
+        .then(Responder.respondWithBlankBody(res))
+        .catch(ErrorHandler.handleError(res));
+    }
   }
 
   static get models() {
