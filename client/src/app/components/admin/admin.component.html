@@ -1,5 +1,21 @@
 <h1>Admin</h1>
 
+<h2>Running Instances</h2>
+
+<table>
+  <tr>
+    <th>Instance ID</th>
+    <th>CPU Utilization Percentage</th>
+  </tr>
+  <tr *ngFor="let instance of instances">
+    <td>{{instance.instanceId}}</td>
+    <td>{{instance.cpuUtilization || 'not available'}} {{instance.cpuUtilization ? '%' : ''}}</td>
+  </tr>
+</table>
+
+<hr>
+
+<h2>Auto Scale Load Balancer Settings</h2>
 <form (submit)="setAdminConfig()" [formGroup]="formGroup">
   <label>autoScale</label>
   <p *ngIf="autoScaleStatus === true">AutoScare is On</p>
@@ -18,5 +34,14 @@
   <input type="text" [formControl]="shrinkingRatioFormControl"><br>
   <input type="submit">
 </form>
-
+<br>
 <button (click)="refresh()">reset</button>
+
+<hr>
+<h2>Manually Change Instance Number</h2>
+<input type="number" min="0" max="10" [(ngModel)]="numberOfInstancesToSet">
+<button (click)="saveInstanceNumber()">save</button>
+
+<hr>
+<h2>Reset the whole app</h2>
+<button (click)="resetApp()">Reset the whole app (deleting users and images)</button>

@@ -69,4 +69,20 @@ export class ApiService {
     return this.http.put(ApiService.API_BASE + '/adminConfig', body).toPromise();
   }
 
+  setNumberOfInstances(number: number): Promise<Response> {
+    return this.http.put(ApiService.API_BASE + '/aws/ec2/number', {number}).toPromise();
+  }
+
+  getInstanceIds(): Promise<Response> {
+    return this.http.get(ApiService.API_BASE + '/aws/elb/instances').toPromise();
+  }
+
+  getInstanceCpuUtilization(instanceId: string): Promise<Response> {
+    return this.http.get(ApiService.API_BASE + '/aws/cloudwatch/cpu/' + instanceId).toPromise();
+  }
+
+  resetApp(): Promise<Response> {
+    return this.http.delete(ApiService.API_BASE + '/adminConfig/all').toPromise();
+  }
+
 }

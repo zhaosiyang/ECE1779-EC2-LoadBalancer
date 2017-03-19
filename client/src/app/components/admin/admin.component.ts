@@ -2,6 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import {ApiService} from '../../services/apiService';
 
+interface Instance {
+  instanceId: string;
+  cpuUtilization: number;
+}
+
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
@@ -15,8 +20,9 @@ export class AdminComponent implements OnInit {
   private cpuShrinkingThresholdFormControl: FormControl;
   private expandingRatioFormControl: FormControl;
   private shrinkingRatioFormControl: FormControl;
-
+  private numberOfInstancesToSet: number;
   private autoScaleStatus: boolean = null;
+  private instances: Array<Instance> = [];
 
   constructor(
     private fb: FormBuilder,
@@ -41,6 +47,7 @@ export class AdminComponent implements OnInit {
     });
 
     this.refresh();
+    this.getInstancesAndCpuUtilization();
   }
 
   setAdminConfig() {
@@ -70,6 +77,48 @@ export class AdminComponent implements OnInit {
       this.expandingRatioFormControl.setValue(responseJson.expandingRatio);
       this.shrinkingRatioFormControl.setValue(responseJson.shrinkingRatio);
     })
+  }
+
+  getInstances() {
+    return this.apiService.getInstanceIds()
+      .then(response => this.instances = response.json().instanceIds.map(id => {return {cpuUtilization: null, instanceId: id}}))
+      .catch(err => {
+        alert('something wrong when getting instance info');
+        throw err;
+      });
+  }
+
+  getCpuUtilizationByInstance(instance: Instance) {
+    this.apiService.getInstanceCpuUtilization(instance.instanceId)
+      .then(response => instance.cpuUtilization = response.json().Datapoints[0].Average)
+      .catch(err => {console.log('cpu utilization not available for instance' + instance.instanceId + ' for now!')});
+  }
+
+  getInstancesAndCpuUtilization() {
+    this.getInstances()
+      .then(() => {
+        this.instances.forEach((instance: Instance) => {
+          this.getCpuUtilizationByInstance(instance);
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        alert('something wrong when getting cpu utilizations');
+      });
+  }
+
+  saveInstanceNumber() {
+    this.apiService.setNumberOfInstances(this.numberOfInstancesToSet)
+      .then(response => {
+        this.getInstancesAndCpuUtilization();
+        alert('success');
+      })
+      .catch(err => alert('something wrong when saving instance number'));
+  }
+
+  resetApp() {
+    this.apiService.resetApp().then(response => alert('success'))
+      .catch(err => alert('something wrong when resetting the app!'));
   }
 
 }
